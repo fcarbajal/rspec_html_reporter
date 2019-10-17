@@ -19,6 +19,7 @@
   <script src="resources/bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
   <script src="resources/tether-1.3.3/js/tether.min.js"></script>
   <script src="resources/js/Chart.js"></script>
+  <script src="resources/js/chartjs-plugin-datalabels.js"></script>
   <style>
       * {
           font-size: 14px;
@@ -217,6 +218,14 @@
         borderWidth: 1
       }]
     },
+    options: {
+        plugins: {
+            // Change options for ALL labels of THIS CHART
+            datalabels: {
+                color: 'white'
+            }
+        }
+    }
   });
 
   function toggler(divId) {
