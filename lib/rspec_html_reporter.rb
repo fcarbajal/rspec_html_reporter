@@ -9,6 +9,84 @@ require 'rbconfig'
 
 I18n.enforce_available_locales = false
 
+class NeosystemsField
+  attr_reader :example
+
+  def initialize(example)
+    @example = example
+  end
+
+  # "Campo Vendor identifier (vendor_number)" -> "vendor_number"
+  def name
+    @example.description.scan(/\((\w+)\)/).flatten.first
+  rescue
+    @example.description
+  end
+
+  # "Campo Vendor identifier (vendor_number)" -> "Vendor identifier"
+  def label
+    @example.description.scan(/Campo\s(.*?)\s\(\w+\)/).flatten.first
+  rescue
+    @example.description
+  end
+
+  def description
+    @example.description
+  end
+
+  def status
+    @example.status
+  end
+
+  def exception
+    @example.exception
+  end
+
+  def klass(prefix='label-')
+    class_map = {passed: "#{prefix}success", failed: "#{prefix}danger", pending: "#{prefix}warning"}
+    class_map[status.to_sym]
+  end
+end
+
+class NeosystemsInvoice
+  attr_reader :examples, :group_description, :fields, :passed, :failed, :pending
+
+  def initialize(group_description, examples)
+    @examples = examples
+    @group_description = group_description
+    @fields = []
+    load_fields
+    @passed = @fields.select { |field| field.status.eql?('passed') }
+    @failed = @fields.select { |field| field.status.eql?('failed') }
+    @pending = @fields.select { |field| field.status.eql?('pending') }
+  end
+
+  def status
+    return 'failed' if @failed.present?
+    return 'pending' if @pending.present?
+    return 'passed'
+  end
+
+  def report_file_name
+    "#{@group_description.parameterize}.html"
+  end
+
+  def klass(prefix='label-')
+    class_map = {passed: "#{prefix}success", failed: "#{prefix}danger", pending: "#{prefix}warning"}
+    class_map[status.to_sym]
+  end
+
+  private
+
+  def load_fields
+    @examples.each do |example|
+      @fields << NeosystemsField.new(example)
+    end
+  end
+end
+
+
+
 class Oopsy
   attr_reader :klass, :message, :backtrace, :highlighted_source, :explanation, :backtrace_message
 
@@ -177,6 +255,7 @@ class RspecHtmlReporter < RSpec::Core::Formatters::BaseFormatter
     create_screenrecords_dir
     copy_resources
     @all_groups = {}
+    @invoice_batch_results = []
 
     @group_level = 0
   end
@@ -217,6 +296,10 @@ class RspecHtmlReporter < RSpec::Core::Formatters::BaseFormatter
     @group_level -= 1
 
     if @group_level == 0
+
+      # Comprueba si es un test de tipo factura y lo añade a la lista de dacturas
+      register_neosystems_invoice(notification.group.description, @examples)
+
       File.open("#{REPORT_PATH}/#{notification.group.description.parameterize}.html", 'w') do |f|
 
         @passed = @group_example_success_count
@@ -259,6 +342,7 @@ class RspecHtmlReporter < RSpec::Core::Formatters::BaseFormatter
   end
 
   def close(notification)
+    neoscan_invoices_batch_report
     File.open("#{REPORT_PATH}/overview.html", 'w') do |f|
       @overview = @all_groups
 
@@ -279,6 +363,43 @@ class RspecHtmlReporter < RSpec::Core::Formatters::BaseFormatter
       @total_examples = @passed + @failed + @pending
       template_file = File.read(File.dirname(__FILE__) + '/../templates/overview.erb')
       f.puts ERB.new(template_file).result(binding)
+    end
+
+  end
+
+
+  def register_neosystems_invoice(group_description, examples)
+    if group_description.starts_with?('InvoiceBatch')
+      invoice = NeosystemsInvoice.new(group_description, @examples)
+      @invoice_batch_results << invoice
+    end
+  end
+
+  # Render de la página especial para test de lotes de facturas
+  def neoscan_invoices_batch_report
+    # Si hay resultados para el test de facturas generamos el informe
+    if @invoice_batch_results.present?
+      File.open("#{REPORT_PATH}/invoice_report.html", 'w') do |f|
+        @report_path = REPORT_PATH
+        @field_labels = @invoice_batch_results.map(&:fields).flatten.map(&:label).uniq
+
+        @passed = @invoice_batch_results.select { |invoice| invoice.status.eql?('passed') }.count
+        @failed = @invoice_batch_results.select { |invoice| invoice.status.eql?('failed') }.count
+        @pending = @invoice_batch_results.select { |invoice| invoice.status.eql?('pending') }.count
+
+        @fields_passed  = @invoice_batch_results.map(&:passed).flatten.count
+        @fields_failed  = @invoice_batch_results.map(&:failed).flatten.count
+        @fields_pending = @invoice_batch_results.map(&:pending).flatten.count
+        @fields_count   = @fields_passed + @fields_failed + @fields_pending
+
+        @field_error_resume = {}
+        @field_labels.each do |field_label|
+          @field_error_resume[field_label] = @invoice_batch_results.map(&:failed).flatten.map(&:label).count(field_label.to_s)
+        end
+
+        template_file = File.read(File.dirname(__FILE__) + '/../templates/invoice_report.erb')
+        f.puts ERB.new(template_file).result(binding)
+      end
     end
   end
 
