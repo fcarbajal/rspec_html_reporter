@@ -42,6 +42,10 @@ class NeosystemsField
     @example.exception
   end
 
+  def has_exception?
+    !exception.klass.nil?
+  end
+
   def klass(prefix='label-')
     class_map = {passed: "#{prefix}success", failed: "#{prefix}danger", pending: "#{prefix}warning"}
     class_map[status.to_sym]

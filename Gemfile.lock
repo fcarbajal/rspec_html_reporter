@@ -9,6 +9,7 @@ GEM
       tzinfo (~> 1.1)
     addressable (2.3.6)
     builder (3.2.2)
+    byebug (10.0.2)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.2.5)
@@ -87,6 +88,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport (>= 4.1.4)
   bundler (~> 1.0)
+  byebug
   jeweler (~> 2.0.1)
   rdoc (~> 3.12)
   rouge (= 1.6.1)
@@ -95,4 +97,4 @@ DEPENDENCIES
   turnip (~> 2.0, >= 2.0.2)
 
 BUNDLED WITH
-   1.16.4
+   1.17.3
