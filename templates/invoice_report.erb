@@ -121,10 +121,10 @@
             <% invoice.fields.each do |field| %>
               <% if field.has_exception? %>
                 <div class="panel panel-danger">
-                  <div class="panel-heading">
-                    <h3 class="panel-title"><%= field.description %> - <%= field.exception.klass %></h3>
+                  <div class="panel-heading" onclick="toggler('field_info_<%= invoice.group_description.parameterize %>_<%= field.name %>');">
+                    <h3 class="panel-title"><%= field.description %><small class="pull-right"><%= field.exception.klass %></small></h3>
                   </div>
-                  <div class="panel-body">
+                  <div id="field_info_<%= invoice.group_description.parameterize %>_<%= field.name %>" class="panel-body" style="display:none">
                     <%= field.exception.explanation %>
                     <% if field.exception.backtrace_message %>
                       <dl>
@@ -139,6 +139,12 @@
                       </dl>
                     <% end %>
                     <%= field.exception.highlighted_source %>
+                  </div>
+                </div>
+              <% else %>
+                <div class="panel <%= field.klass('panel-') %>">
+                  <div class="panel-heading">
+                    <h3 class="panel-title"><%= field.description %></h3>
                   </div>
                 </div>
               <% end %>
