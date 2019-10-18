@@ -12,4 +12,5 @@ group :development do
   gem "bundler", "~> 1.0"
   gem "jeweler", "~> 2.0.1"
   gem 'turnip', '~> 2.0', '>= 2.0.2'
+  gem 'byebug', platform: :mri # Call 'byebug' anywhere in the code to stop execution and get a debugger console
 end
