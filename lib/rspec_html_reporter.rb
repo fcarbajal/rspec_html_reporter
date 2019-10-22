@@ -12,6 +12,8 @@ I18n.enforce_available_locales = false
 class NeosystemsField
   attr_reader :example
 
+  VALIDATABLE_FIELDS = ['invoice_date','total','taxes'].freeze
+
   def initialize(example)
     @example = example
   end
@@ -50,6 +52,10 @@ class NeosystemsField
     class_map = {passed: "#{prefix}success", failed: "#{prefix}danger", pending: "#{prefix}warning"}
     class_map[status.to_sym]
   end
+
+  def is_validatable?
+    VALIDATABLE_FIELDS.include?(self.name)
+  end
 end
 
 class NeosystemsInvoice
@@ -58,16 +64,19 @@ class NeosystemsInvoice
   def initialize(group_description, examples)
     @examples = examples
     @group_description = group_description
+
     @fields = []
     load_fields
-    @passed = @fields.select { |field| field.status.eql?('passed') }
-    @failed = @fields.select { |field| field.status.eql?('failed') }
+
+    @passed  = @fields.select { |field| field.status.eql?('passed') }
+    @failed  = @fields.select { |field| field.status.eql?('failed') }
     @pending = @fields.select { |field| field.status.eql?('pending') }
   end
 
   def status
-    return 'failed' if @failed.present?
-    return 'pending' if @pending.present?
+    # TODO: Hace que solo cuente los campos no validables para indicar si una factura es válida o no
+    return 'failed'  if @failed.present?  && @failed.any?(&:is_validatable?)
+    return 'pending' if @pending.present? && @pending.any?(&:is_validatable?)
     return 'passed'
   end
 
@@ -392,11 +401,12 @@ class RspecHtmlReporter < RSpec::Core::Formatters::BaseFormatter
     # Si hay resultados para el test de facturas generamos el informe
     if @invoice_batch_results.present?
       File.open("#{REPORT_PATH}/invoice_report.html", 'w') do |f|
-        @report_path = REPORT_PATH
+        @report_path  = REPORT_PATH
         @field_labels = @invoice_batch_results.map(&:fields).flatten.map(&:label).uniq
+        @field_names  = @invoice_batch_results.map(&:fields).flatten.map(&:label).uniq
 
-        @passed = @invoice_batch_results.select { |invoice| invoice.status.eql?('passed') }.count
-        @failed = @invoice_batch_results.select { |invoice| invoice.status.eql?('failed') }.count
+        @passed  = @invoice_batch_results.select { |invoice| invoice.status.eql?('passed') }.count
+        @failed  = @invoice_batch_results.select { |invoice| invoice.status.eql?('failed') }.count
         @pending = @invoice_batch_results.select { |invoice| invoice.status.eql?('pending') }.count
 
         @fields_passed  = @invoice_batch_results.map(&:passed).flatten.count
@@ -405,8 +415,10 @@ class RspecHtmlReporter < RSpec::Core::Formatters::BaseFormatter
         @fields_count   = @fields_passed + @fields_failed + @fields_pending
 
         @field_error_resume = {}
-        @field_labels.each do |field_label|
-          @field_error_resume[field_label] = @invoice_batch_results.map(&:failed).flatten.map(&:label).count(field_label.to_s)
+        @field_validatable_error_resume = {}
+        @invoice_batch_results.map(&:fields).flatten.each do |field|
+          @field_error_resume[field.label] = @invoice_batch_results.map(&:failed).flatten.map(&:name).count(field.name.to_s)
+          @field_validatable_error_resume[field.name] = @invoice_batch_results.map(&:failed).flatten.map(&:name).count(field.name.to_s) if field.is_validatable?
         end
 
         template_file = File.read(File.dirname(__FILE__) + '/../templates/invoice_report.erb')

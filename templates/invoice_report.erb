@@ -65,6 +65,9 @@
     </div>
 
     <div class="col-md-4">
+    </div>
+
+    <div class="col-md-4">
       <div class="panel panel-default">
 
         <div class="panel-heading">Resumen de aciertos en campos</div>
@@ -85,6 +88,21 @@
         </div>
       </div>
     </div>
+    
+    <div class="col-md-4">
+    </div>
+
+    <div class="col-md-4">
+      <div class="panel panel-default">
+
+        <div class="panel-heading">Errores en los campos (con validaciones)</div>
+        <div class="panel-body">
+          <span class="pull-right"><%= @field_validatable_error_resume.values.sum %> Errores</span>
+          <canvas id="resume_validatable_field_errors_chart" width="300" height="300"></canvas>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div class="row">
@@ -244,6 +262,54 @@
         datasets: [{
           label: 'Examples',
           data: <%= @field_error_resume.values %>,
+
+          backgroundColor: [
+            '#D95B43',
+            '#C02942',
+            '#542437',
+            '#53777A',
+            '#E288C4',
+            '#EA3A9E',
+            '#AD2320',
+            '#488f31',
+            '#379469',
+            '#58a066',
+            '#78ab63',
+            '#98b561',
+            '#b8bf62',
+            '#dac767',
+            '#deb256',
+            '#e09d4b',
+            '#e18745',
+            '#e06f45',
+            '#dc574a',
+            '#de425b'
+          ],
+          borderWidth: 1
+        }]
+    },
+    options: {
+        plugins: {
+            // Change options for ALL labels of THIS CHART
+            datalabels: {
+                color: 'white',
+                display: function(context) {
+                  return context.dataset.data[context.dataIndex] > 0;
+                }
+            }
+        }
+    }
+  });
+
+  var pieCtx = document.getElementById("resume_validatable_field_errors_chart");
+
+  var resume_validatable_field_errors_chart = new Chart(pieCtx, {
+    type: 'doughnut',
+    data: {
+        labels: <%= @field_validatable_error_resume.keys %>,
+        datasets: [{
+          label: 'Examples',
+          data: <%= @field_validatable_error_resume.values %>,
 
           backgroundColor: [
             '#D95B43',
