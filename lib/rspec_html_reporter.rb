@@ -71,8 +71,16 @@ class NeosystemsInvoice
     return 'passed'
   end
 
+  def report_name
+    "#{@group_description.split('::').last.gsub('-pdf', '.pdf').gsub('-tif', '.tif')}"
+  end
+
   def report_file_name
     "#{@group_description.parameterize}.html"
+  end
+
+  def uuid
+    @group_description.scan(/::([\d-]+)::/).flatten.first
   end
 
   def klass(prefix='label-')

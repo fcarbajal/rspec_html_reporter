@@ -106,25 +106,26 @@
         <tbody>
         <% i = 1 %>
         <% @invoice_batch_results.each do |invoice| %>
-        <tr onclick="toggler('row_info_<%= invoice.group_description.parameterize %>');">
+        <tr onclick="toggler('row_info_<%= invoice.report_name.parameterize %>');">
           <td><%= i %></td>
           <td class="<%= invoice.klass('') %>"><%= invoice.status %></td>
           <td>
-            <a href="<%= @report_path %>/<%= invoice.report_file_name %>"><%= invoice.group_description %></a>
+            <a href="https://storage.cloud.google.com/neodocr/<%= invoice.uuid %>/<%= invoice.report_name %>?hl=es" target="_blank">[<%= invoice.report_name.split('.').last %>]</a>
+            <a href="<%= @report_path %>/<%= invoice.report_file_name %>"><%= invoice.report_name %></a>
           </td>
           <% invoice.fields.each do |field| %>
             <td class="<%= field.klass('') %>"><%= field.status %></td>
           <% end %>
         </tr>
         <tr>
-          <td colspan="<%= columns_count %>" id="row_info_<%= invoice.group_description.parameterize %>" style="display:none">
+          <td colspan="<%= columns_count %>" id="row_info_<%= invoice.report_name.parameterize %>" style="display:none">
             <% invoice.fields.each do |field| %>
               <% if field.has_exception? %>
                 <div class="panel panel-danger">
-                  <div class="panel-heading" onclick="toggler('field_info_<%= invoice.group_description.parameterize %>_<%= field.name %>');">
+                  <div class="panel-heading" onclick="toggler('field_info_<%= invoice.report_name.parameterize %>_<%= field.name %>');">
                     <h3 class="panel-title"><%= field.description %><small class="pull-right"><%= field.exception.klass %></small></h3>
                   </div>
-                  <div id="field_info_<%= invoice.group_description.parameterize %>_<%= field.name %>" class="panel-body" style="display:none">
+                  <div id="field_info_<%= invoice.report_name.parameterize %>_<%= field.name %>" class="panel-body" style="display:none">
                     <%= field.exception.explanation %>
                     <% if field.exception.backtrace_message %>
                       <dl>
