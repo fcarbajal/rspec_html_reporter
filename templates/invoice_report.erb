@@ -88,7 +88,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-md-4">
     </div>
 
@@ -116,8 +116,8 @@
           <th>#</th>
           <th>Status</th>
           <th>Group</th>
-          <% @field_labels.each do |field_label| %>
-            <th><%= field_label %></th>
+          <% @fields.each do |field| %>
+            <th style="color:<%= field.is_validatable? ? 'black' : 'red' %>;"><%= field.label %></th>
           <% end %>
         </tr>
         </thead>

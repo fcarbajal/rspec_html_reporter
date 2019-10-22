@@ -402,6 +402,7 @@ class RspecHtmlReporter < RSpec::Core::Formatters::BaseFormatter
     if @invoice_batch_results.present?
       File.open("#{REPORT_PATH}/invoice_report.html", 'w') do |f|
         @report_path  = REPORT_PATH
+        @fields       = @invoice_batch_results.map(&:fields).flatten
         @field_labels = @invoice_batch_results.map(&:fields).flatten.map(&:label).uniq
         @field_names  = @invoice_batch_results.map(&:fields).flatten.map(&:label).uniq
 
