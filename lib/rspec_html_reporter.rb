@@ -11,8 +11,9 @@ I18n.enforce_available_locales = false
 
 class NeosystemsField
   attr_reader :example
-
+  ALL_FIELDS = ['vendor_number', 'invoice_number', 'invoice_date', 'total', 'taxes', 'vat_base', 'vat_rate', 'vat_amount'].freeze
   VALIDATABLE_FIELDS = ['invoice_date','total','taxes'].freeze
+  COLORS = ['#D95B43', '#C02942', '#542437', '#53777A', '#98b561', '#379469', '#488f31', '#AD2320', '#58a066', '#78ab63', '#E288C4', '#b8bf62', '#dac767', '#deb256', '#e09d4b', '#e18745', '#e06f45', '#dc574a', '#de425b'].freeze
 
   def initialize(example)
     @example = example
@@ -402,7 +403,8 @@ class RspecHtmlReporter < RSpec::Core::Formatters::BaseFormatter
     if @invoice_batch_results.present?
       File.open("#{REPORT_PATH}/invoice_report.html", 'w') do |f|
         @report_path  = REPORT_PATH
-        @fields       = @invoice_batch_results.map(&:fields).flatten
+        @field_colors = Hash[NeosystemsField::ALL_FIELDS.zip(NeosystemsField::COLORS)]
+        @fields       = @invoice_batch_results.map(&:fields)
         @field_labels = @invoice_batch_results.map(&:fields).flatten.map(&:label).uniq
         @field_names  = @invoice_batch_results.map(&:fields).flatten.map(&:label).uniq
 
@@ -418,7 +420,7 @@ class RspecHtmlReporter < RSpec::Core::Formatters::BaseFormatter
         @field_error_resume = {}
         @field_validatable_error_resume = {}
         @invoice_batch_results.map(&:fields).flatten.each do |field|
-          @field_error_resume[field.label] = @invoice_batch_results.map(&:failed).flatten.map(&:name).count(field.name.to_s)
+          @field_error_resume[field.name] = @invoice_batch_results.map(&:failed).flatten.map(&:name).count(field.name.to_s)
           @field_validatable_error_resume[field.name] = @invoice_batch_results.map(&:failed).flatten.map(&:name).count(field.name.to_s) if field.is_validatable?
         end
 

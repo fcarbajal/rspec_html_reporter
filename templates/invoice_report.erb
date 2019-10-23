@@ -116,7 +116,7 @@
           <th>#</th>
           <th>Status</th>
           <th>Group</th>
-          <% @fields.each do |field| %>
+          <% @fields.first.each do |field| %>
             <th style="color:<%= field.is_validatable? ? 'black' : 'red' %>;"><%= field.label %></th>
           <% end %>
         </tr>
@@ -263,28 +263,7 @@
           label: 'Examples',
           data: <%= @field_error_resume.values %>,
 
-          backgroundColor: [
-            '#D95B43',
-            '#C02942',
-            '#542437',
-            '#53777A',
-            '#E288C4',
-            '#EA3A9E',
-            '#AD2320',
-            '#488f31',
-            '#379469',
-            '#58a066',
-            '#78ab63',
-            '#98b561',
-            '#b8bf62',
-            '#dac767',
-            '#deb256',
-            '#e09d4b',
-            '#e18745',
-            '#e06f45',
-            '#dc574a',
-            '#de425b'
-          ],
+          backgroundColor:  <%= @field_colors.select{|k,_| @field_error_resume.keys.include?(k)}.values %>,
           borderWidth: 1
         }]
     },
@@ -311,28 +290,7 @@
           label: 'Examples',
           data: <%= @field_validatable_error_resume.values %>,
 
-          backgroundColor: [
-            '#D95B43',
-            '#C02942',
-            '#542437',
-            '#53777A',
-            '#E288C4',
-            '#EA3A9E',
-            '#AD2320',
-            '#488f31',
-            '#379469',
-            '#58a066',
-            '#78ab63',
-            '#98b561',
-            '#b8bf62',
-            '#dac767',
-            '#deb256',
-            '#e09d4b',
-            '#e18745',
-            '#e06f45',
-            '#dc574a',
-            '#de425b'
-          ],
+          backgroundColor: <%= @field_colors.select{|k,_| @field_validatable_error_resume.keys.include?(k)}.values %>,
           borderWidth: 1
         }]
     },
