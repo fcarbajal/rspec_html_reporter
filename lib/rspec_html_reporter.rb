@@ -11,9 +11,10 @@ I18n.enforce_available_locales = false
 
 class NeosystemsField
   attr_reader :example
-  ALL_FIELDS = ['vendor_number', 'invoice_number', 'invoice_date', 'total', 'taxes', 'vat_base', 'vat_rate', 'vat_amount'].freeze
-  VALIDATABLE_FIELDS = ['invoice_date','total','taxes'].freeze
-  COLORS = ['#D95B43', '#C02942', '#542437', '#53777A', '#98b561', '#379469', '#488f31', '#AD2320', '#58a066', '#78ab63', '#E288C4', '#b8bf62', '#dac767', '#deb256', '#e09d4b', '#e18745', '#e06f45', '#dc574a', '#de425b'].freeze
+  ALL_FIELDS         = ['vendor_name', 'vendor_identifier', 'vendor_number', 'invoice_number', 'invoice_date', 'total', 'taxes', 'vat_base', 'vat_rate', 'vat_amount'].freeze
+  VALIDATABLE_FIELDS = ['vendor_name', 'vendor_identifier', 'vendor_number', 'invoice_number', 'invoice_date', 'total', 'taxes'].freeze
+  COLORS             = ['#D95B43', '#C02942', '#542437', '#53777A', '#98b561', '#379469', '#488f31', '#AD2320', '#58a066', '#78ab63', '#E288C4', '#b8bf62', '#dac767', '#deb256', '#e09d4b', '#e18745', '#e06f45', '#dc574a', '#de425b'].freeze
+
 
   def initialize(example)
     @example = example
